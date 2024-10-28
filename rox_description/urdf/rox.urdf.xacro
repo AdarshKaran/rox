@@ -11,6 +11,7 @@
     <xacro:arg name="use_gz" default="false"/>
     <xacro:arg name="use_imu" default="false"/>
     <xacro:arg name="use_d435" default="false"/>
+    <xacro:arg name="use_ur_dc" default="false"/>
 
     <!-- Xacro Properties -->
     <xacro:property name="frame" value="$(arg frame_type)"/>
@@ -22,6 +23,7 @@
     <xacro:property name="use_ur_arm" value="false"/>
     <xacro:property name="imu" value="$(arg use_imu)"/>
     <xacro:property name="d435" value="$(arg use_d435)"/>
+    <xacro:property name="ur_dc" value="$(arg use_ur_dc)"/>
 
     <!-- Include xacro files -->
     <xacro:include filename="$(find rox_description)/urdf/xacros/frame.xacro" />
@@ -128,6 +130,14 @@
 
     <!-- arm -->
     <xacro:unless value="${arm == ''}">
+        <xacro:if value="${ur_dc == False}">
+            <xacro:property name="arm_height" value="0.46" />
+        </xacro:if>
+
+        <xacro:if value="${ur_dc == True}">
+            <xacro:property name="arm_height" value="0.276" />
+        </xacro:if>
+
         <xacro:include filename="$(find rox_description)/urdf/xacros/cabinet.xacro" />
         <xacro:cabinet name="cabinet" parent="base_footprint">
             <origin rpy="0 0 0" xyz="${frame_len} 0 0.33"/>
@@ -169,7 +179,7 @@
                 initial_positions = "${ur_initial_positions}"
                 >
                 <!-- position robot in the world -->
-                <origin xyz="0.133 0.0 0.416" rpy="0.0 0.0 -1.5708" />
+                <origin xyz="0.218 0.0 ${arm_height}" rpy="0.0 0.0 -1.5708" />
             </xacro:ur_robot>
         </xacro:if>
     </xacro:unless>
