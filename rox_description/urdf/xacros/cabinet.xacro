@@ -2,12 +2,20 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="rox">
 
   <xacro:macro name="cabinet" params="name parent *origin">
-   <joint name="${name}_joint" type="fixed">
+    <joint name="${name}_joint" type="fixed">
     <xacro:insert_block name="origin" />
     <joint_properties damping="1" friction="1" />
     <parent link="${parent}" />
     <child link="${name}_link" />
-   </joint>
+    </joint>
+
+    <xacro:if value="${ur_dc == True}">
+      <xacro:property name="cabinet_mesh" value="cabinet_dc" />
+    </xacro:if>
+
+    <xacro:if value="${ur_dc == False}">
+      <xacro:property name="cabinet_mesh" value="cabinet_ac" />
+    </xacro:if>
 
     <link name="${name}_link">
       <inertial>
@@ -20,13 +28,13 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-            <mesh filename="package://rox_description/meshes/cabinet.dae" scale="0.1 0.1 0.1"/>
+          <mesh filename="package://rox_description/meshes/${cabinet_mesh}.dae" scale="0.1 0.1 0.1"/>
         </geometry>
       </visual>
       <collision>
         <origin xyz="0. 0. 0" rpy="0 0 0" />
         <geometry>
-            <mesh filename="package://rox_description/meshes/cabinet.dae" scale="0.1 0.1 0.1"/>
+          <mesh filename="package://rox_description/meshes/${cabinet_mesh}.dae" scale="0.1 0.1 0.1"/>
         </geometry>
       </collision>
     </link>
