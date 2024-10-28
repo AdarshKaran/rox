@@ -21,7 +21,8 @@ def execution_stage(context: LaunchContext,
                     rox_type,
                     arm_type,
                     scanner_type,
-                    use_imu):
+                    use_imu,
+                    ur_dc):
     
     rox = get_package_share_directory('rox_bringup')
 
@@ -30,6 +31,8 @@ def execution_stage(context: LaunchContext,
     rox_typ = str(rox_type.perform(context))
     scanner_typ = str(scanner_type.perform(context))
     imu_enable = str(use_imu.perform(context))
+    use_ur_dc = ur_dc.perform(context)
+
     launches = []
     
     rp_ns = ""
@@ -58,7 +61,9 @@ def execution_stage(context: LaunchContext,
             " ", 'scanner:=',
             scanner_typ,
             " ", 'use_imu:=',
-            imu_enable
+            imu_enable,
+            " ", 'use_ur_dc:=',
+            use_ur_dc
             ]), 'frame_prefix': rp_ns}],
         arguments=[urdf])
     
@@ -237,8 +242,9 @@ def generate_launch_description():
     arm_type = LaunchConfiguration('arm_type')
     scanner_type = LaunchConfiguration('scanner_type')
     imu_enable = LaunchConfiguration('imu_enable')
+    ur_dc = LaunchConfiguration('use_ur_dc')
 
-    context_arguments = [robot_namespace, frame_type, rox_type, arm_type, scanner_type, imu_enable]
+    context_arguments = [robot_namespace, frame_type, rox_type, arm_type, scanner_type, imu_enable, ur_dc]
 
     opq_function = OpaqueFunction(function=execution_stage, args=context_arguments)
     
@@ -270,6 +276,11 @@ def generate_launch_description():
             'scanner_type', default_value='nanoscan',
             description='Scanner options available: nanoscan/psenscan'
         )
+    
+    declare_ur_pwr_variant_cmd = DeclareLaunchArgument(
+            'use_ur_dc', default_value='false',
+            description='Set this argument to True if you have an UR arm with DC variant'
+        )
 
     ld = LaunchDescription()
     ld.add_action(declare_namespace_cmd)
@@ -278,6 +289,7 @@ def generate_launch_description():
     ld.add_action(declare_arm_cmd)
     ld.add_action(declare_frame_type_cmd)
     ld.add_action(declare_scanner_cmd)
+    ld.add_action(declare_ur_pwr_variant_cmd)
     ld.add_action(opq_function)
     
     return ld
