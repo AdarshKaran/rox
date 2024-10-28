@@ -179,7 +179,7 @@
                 initial_positions = "${ur_initial_positions}"
                 >
                 <!-- position robot in the world -->
-                <origin xyz="0.218 0.0 ${arm_height}" rpy="0.0 0.0 -1.5708" />
+                <origin xyz="0.218 0.0 ${arm_height}" rpy="0.0 0.0 3.1415926535897931" />
             </xacro:ur_robot>
         </xacro:if>
     </xacro:unless>
