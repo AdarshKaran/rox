@@ -66,7 +66,6 @@ def launch_setup(context):
     use_tool_communication = LaunchConfiguration("use_tool_communication")
     tool_device_name = LaunchConfiguration("tool_device_name")
     tool_tcp_port = LaunchConfiguration("tool_tcp_port")
-    tf_prefix = LaunchConfiguration("tf_prefix")
 
     control_node = Node(
         package="controller_manager",
@@ -137,15 +136,6 @@ def launch_setup(context):
         ],
     )
 
-    rviz_node = Node(
-        package="rviz2",
-        condition=IfCondition(launch_rviz),
-        executable="rviz2",
-        name="rviz2",
-        output="log",
-        arguments=["-d", rviz_config_file],
-    )
-
     # Spawn controllers
     def controller_spawner(controllers, active=True):
         inactive_flags = ["--inactive"] if not active else []
@@ -184,23 +174,12 @@ def launch_setup(context):
         controller_spawner(controllers_inactive, active=False),
     ]
 
-    rsp = IncludeLaunchDescription(
-        AnyLaunchDescriptionSource(description_launchfile),
-        launch_arguments={
-            "robot_ip": robot_ip,
-            "ur_type": ur_type,
-            "tf_prefix": tf_prefix
-        }.items(),
-    )
-
     nodes_to_start = [
         control_node,
         dashboard_client_node,
         tool_communication_node,
         controller_stopper_node,
         urscript_interface,
-        rsp,
-        rviz_node,
     ] + controller_spawners
 
     return nodes_to_start
