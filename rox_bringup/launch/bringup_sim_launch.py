@@ -105,7 +105,7 @@ def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, use_
     )
 
     launch_actions.append(start_robot_state_publisher_cmd)
-    if arm_type != '':
+    if arm_typ != '':
         launch_actions.append(joint_state_broadcaster_spawner)
         launch_actions.append(initial_joint_controller_spawner_stopped)
     launch_actions.append(ignition)
