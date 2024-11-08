@@ -15,8 +15,13 @@ from pathlib import Path
 import xacro
 
 def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, use_d435, use_imu):
+    # Create a list to hold all the nodes
+    launch_actions = []
+    
     default_world_path = os.path.join(get_package_share_directory('neo_gz_worlds'), 'worlds', 'neo_workshop.sdf')
     bridge_config_file = os.path.join(get_package_share_directory('rox_bringup'), 'configs/gz_bridge', 'gz_bridge_config.yaml')
+    
+    # The perform method of a LaunchConfiguration is called to evaluate its value.
     frame_typ = str(frame_type.perform(context))
     arm_typ = str(arm_type.perform(context))
     rox_typ = str(rox_type.perform(context))
@@ -46,7 +51,7 @@ def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, use_
         PythonLaunchDescriptionSource(
             os.path.join(get_package_share_directory('ros_gz_sim'), 'launch', 'gz_sim.launch.py')
         )
-        , launch_arguments={'ign_args': ['-r ', default_world_path]}.items()
+        , launch_arguments={'gz_args': ['-r ', default_world_path]}.items()
       )
 
     start_robot_state_publisher_cmd = Node(
@@ -86,8 +91,29 @@ def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, use_
         name='parameter_bridge',
         output='screen',
         parameters=[{'config_file': bridge_config_file}])
+    
+    joint_state_broadcaster_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["joint_state_broadcaster", "-c", "/controller_manager"],
+    )
 
-    return [start_robot_state_publisher_cmd, ignition, gz_bridge, teleop, spawn_robot]
+    initial_joint_controller_spawner_stopped = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["joint_trajectory_controller", "-c", "/controller_manager"],
+    )
+
+    launch_actions.append(start_robot_state_publisher_cmd)
+    if arm_typ != '':
+        launch_actions.append(joint_state_broadcaster_spawner)
+        launch_actions.append(initial_joint_controller_spawner_stopped)
+    launch_actions.append(ignition)
+    launch_actions.append(gz_bridge)
+    launch_actions.append(teleop)
+    launch_actions.append(spawn_robot)
+    
+    return launch_actions
 
 def generate_launch_description():
     opq_function = OpaqueFunction(function=execution_stage,
@@ -120,7 +146,9 @@ def generate_launch_description():
     
     declare_arm_cmd = DeclareLaunchArgument(
             'arm_type', default_value='',
-            description='Arm used in the robot - currently only support universal'
+            description='Arm used in the robot:\n'
+            '\t currently only the following Universal Robotics arms are supported\n'
+            '\t (ur5, ur10, ur5e, ur10e)'
         )
 
     return LaunchDescription([
