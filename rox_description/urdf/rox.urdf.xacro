@@ -130,8 +130,9 @@
 
     <!-- arm -->
     <xacro:unless value="${arm == ''}">
-        <xacro:if value="${ur_dc == False}">
-            <xacro:property name="arm_height" value="0.46" />
+        <xacro:if value="${ur_dc == False}"> 
+            <!-- Different height for AC arm-->
+            <xacro:property name="arm_height" value="0.376" />
         </xacro:if>
 
         <xacro:if value="${ur_dc == True}">

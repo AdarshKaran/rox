@@ -14,7 +14,14 @@ import os
 from pathlib import Path
 import xacro
 
-def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, use_d435, use_imu):
+def execution_stage(context: LaunchContext, 
+                    frame_type, 
+                    rox_type, 
+                    arm_type, 
+                    use_d435, 
+                    use_imu, 
+                    ur_dc):
+    
     # Create a list to hold all the nodes
     launch_actions = []
     
@@ -26,7 +33,9 @@ def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, use_
     arm_typ = str(arm_type.perform(context))
     rox_typ = str(rox_type.perform(context))
     d435 = str(use_d435.perform(context))
-    imu = str(use_imu.perform(context))
+    imu_enable = str(use_imu.perform(context))
+    use_ur_dc = ur_dc.perform(context)
+
     joint_type = "fixed"
     use_sim_time = True
     if (rox_typ == "meca"):
@@ -70,11 +79,13 @@ def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, use_
             " ", 'joint_type:=',
             joint_type,
             " ", 'use_imu:=',
-            imu,
+            imu_enable,
             " ", 'use_d435:=',
             d435,
             " ", 'use_gz:=',
-            "True"
+            "True",
+            " ", 'use_ur_dc:=',
+            use_ur_dc
             ])}],
         arguments=[urdf])
     
@@ -121,7 +132,8 @@ def generate_launch_description():
                                         LaunchConfiguration('rox_type'),
                                         LaunchConfiguration('arm_type'),
                                         LaunchConfiguration('d435_enable'),
-                                        LaunchConfiguration('imu_enable')
+                                        LaunchConfiguration('imu_enable'),
+                                        LaunchConfiguration('use_ur_dc')
                                         ])
     
     declare_frame_type_cmd = DeclareLaunchArgument(
@@ -151,11 +163,17 @@ def generate_launch_description():
             '\t (ur5, ur10, ur5e, ur10e)'
         )
 
+    declare_ur_pwr_variant_cmd = DeclareLaunchArgument(
+            'use_ur_dc', default_value='false',
+            description='Set this argument to True if you have an UR arm with DC variant'
+        )
+    
     return LaunchDescription([
         declare_imu_cmd,
         declare_realsense_cmd,
         declare_arm_cmd,
         declare_frame_type_cmd,
         declare_rox_type_cmd,
+        declare_ur_pwr_variant_cmd,
         opq_function
     ])
