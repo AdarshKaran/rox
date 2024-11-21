@@ -28,7 +28,7 @@ def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, use_
     d435 = str(use_d435.perform(context))
     imu = str(use_imu.perform(context))
     joint_type = "fixed"
-
+    use_sim_time = True
     if (rox_typ == "meca"):
         frame_typ = "long"
         print("Meca only supports long frame")
@@ -59,7 +59,7 @@ def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, use_
         executable='robot_state_publisher',
         name='robot_state_publisher',
         output='screen',
-        parameters=[{
+        parameters=[{'use_sim_time': use_sim_time,
             'robot_description': Command([
             "xacro", " ", urdf, " ", 'frame_type:=',
             frame_typ,

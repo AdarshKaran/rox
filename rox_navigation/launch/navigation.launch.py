@@ -120,7 +120,7 @@ def generate_launch_description():
         )
 
     declare_use_sim_time_cmd = DeclareLaunchArgument(
-            'use_sim_time', default_value='false',
+            'use_sim_time', default_value='true',
             description='Use simulation clock if true'
         )
     
@@ -161,7 +161,7 @@ def generate_launch_description():
             'nav2_params_file', default_value=os.path.join(
                 get_package_share_directory('rox_navigation'),
                 'configs',
-                'navigation_short_frame.yaml'),
+                'navigation_omni.yaml'),
             description='Full path to the Nav2 parameters file to load'
         )
     
