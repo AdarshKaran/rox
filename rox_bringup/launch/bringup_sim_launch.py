@@ -70,7 +70,7 @@ def execution_stage(context: LaunchContext,
         controllers_yaml = os.path.join(
             get_package_share_directory("rox_bringup"),
             "configs",
-            "ur_config",
+            "ur",
             arm_typ,
             "ur_controllers.yaml",
         )

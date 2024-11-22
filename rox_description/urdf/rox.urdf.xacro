@@ -158,7 +158,7 @@
             <xacro:arg name="force_abs_paths" default="false" />
             <xacro:arg name="sim_ignition" default="$(arg use_gz)" />
             <xacro:arg name="simulation_controllers" default=""/>
-            <xacro:arg name="initial_positions_file" default="$(find rox_bringup)/configs/ur_config/initial_joint_positions.yaml"/>
+            <xacro:arg name="initial_positions_file" default="$(find rox_bringup)/configs/ur/initial_joint_positions.yaml"/>
             
            <!-- parse initial positions as a dictionary -->
             <xacro:property 
