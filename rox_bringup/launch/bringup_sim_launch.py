@@ -14,28 +14,37 @@ import os
 from pathlib import Path
 import xacro
 
-def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, use_d435, use_imu):
+def execution_stage(context: LaunchContext, 
+                    frame_type, 
+                    rox_type, 
+                    arm_type, 
+                    use_d435, 
+                    use_imu, 
+                    ur_dc):
+    
     # Create a list to hold all the nodes
     launch_actions = []
-    
+
     default_world_path = os.path.join(get_package_share_directory('neo_gz_worlds'), 'worlds', 'neo_workshop.sdf')
     bridge_config_file = os.path.join(get_package_share_directory('rox_bringup'), 'configs/gz_bridge', 'gz_bridge_config.yaml')
-    
+
     # The perform method of a LaunchConfiguration is called to evaluate its value.
     frame_typ = str(frame_type.perform(context))
     arm_typ = str(arm_type.perform(context))
     rox_typ = str(rox_type.perform(context))
     d435 = str(use_d435.perform(context))
-    imu = str(use_imu.perform(context))
-    joint_type = "fixed"
+    imu_enable = str(use_imu.perform(context))
+    use_ur_dc = ur_dc.perform(context)
 
+    joint_type = "fixed"
+    use_sim_time = True
     if (rox_typ == "meca"):
         frame_typ = "long"
         print("Meca only supports long frame")
 
     if (rox_typ == "diff" or rox_typ == "trike"):
         joint_type = "revolute"
-    
+
     urdf = os.path.join(get_package_share_directory('rox_description'), 'urdf', 'rox.urdf.xacro')
 
     spawn_robot = Node(
@@ -46,7 +55,7 @@ def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, use_
         arguments=[
             '-topic', "robot_description",
             '-name', "rox"])
-    
+
     ignition = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(get_package_share_directory('ros_gz_sim'), 'launch', 'gz_sim.launch.py')
@@ -54,12 +63,24 @@ def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, use_
         , launch_arguments={'gz_args': ['-r ', default_world_path]}.items()
       )
 
+    # initialize the controllers yaml file with the default values when no arm is used
+    controllers_yaml = ''
+
+    if arm_typ != '':
+        controllers_yaml = os.path.join(
+            get_package_share_directory("rox_bringup"),
+            "configs",
+            "ur_config",
+            arm_typ,
+            "ur_controllers.yaml",
+        )
+
     start_robot_state_publisher_cmd = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
         name='robot_state_publisher',
         output='screen',
-        parameters=[{
+        parameters=[{'use_sim_time': use_sim_time,
             'robot_description': Command([
             "xacro", " ", urdf, " ", 'frame_type:=',
             frame_typ,
@@ -70,11 +91,15 @@ def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, use_
             " ", 'joint_type:=',
             joint_type,
             " ", 'use_imu:=',
-            imu,
+            imu_enable,
             " ", 'use_d435:=',
             d435,
             " ", 'use_gz:=',
-            "True"
+            "True",
+            " ", 'use_ur_dc:=',
+            use_ur_dc,
+            " ", 'simulation_controllers:=',
+            controllers_yaml,
             ])}],
         arguments=[urdf])
     
@@ -121,7 +146,8 @@ def generate_launch_description():
                                         LaunchConfiguration('rox_type'),
                                         LaunchConfiguration('arm_type'),
                                         LaunchConfiguration('d435_enable'),
-                                        LaunchConfiguration('imu_enable')
+                                        LaunchConfiguration('imu_enable'),
+                                        LaunchConfiguration('use_ur_dc')
                                         ])
     
     declare_frame_type_cmd = DeclareLaunchArgument(
@@ -151,11 +177,17 @@ def generate_launch_description():
             '\t (ur5, ur10, ur5e, ur10e)'
         )
 
+    declare_ur_pwr_variant_cmd = DeclareLaunchArgument(
+            'use_ur_dc', default_value='false',
+            description='Set this argument to True if you have an UR arm with DC variant'
+        )
+    
     return LaunchDescription([
         declare_imu_cmd,
         declare_realsense_cmd,
         declare_arm_cmd,
         declare_frame_type_cmd,
         declare_rox_type_cmd,
+        declare_ur_pwr_variant_cmd,
         opq_function
     ])
