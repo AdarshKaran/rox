@@ -24,10 +24,10 @@ def execution_stage(context: LaunchContext,
     
     # Create a list to hold all the nodes
     launch_actions = []
-    
+
     default_world_path = os.path.join(get_package_share_directory('neo_gz_worlds'), 'worlds', 'neo_workshop.sdf')
     bridge_config_file = os.path.join(get_package_share_directory('rox_bringup'), 'configs/gz_bridge', 'gz_bridge_config.yaml')
-    
+
     # The perform method of a LaunchConfiguration is called to evaluate its value.
     frame_typ = str(frame_type.perform(context))
     arm_typ = str(arm_type.perform(context))
@@ -44,7 +44,7 @@ def execution_stage(context: LaunchContext,
 
     if (rox_typ == "diff" or rox_typ == "trike"):
         joint_type = "revolute"
-    
+
     urdf = os.path.join(get_package_share_directory('rox_description'), 'urdf', 'rox.urdf.xacro')
 
     spawn_robot = Node(
@@ -55,13 +55,25 @@ def execution_stage(context: LaunchContext,
         arguments=[
             '-topic', "robot_description",
             '-name', "rox"])
-    
+
     ignition = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(get_package_share_directory('ros_gz_sim'), 'launch', 'gz_sim.launch.py')
         )
         , launch_arguments={'gz_args': ['-r ', default_world_path]}.items()
       )
+
+    # initialize the controllers yaml file with the default values when no arm is used
+    controllers_yaml = ''
+
+    if arm_typ != '':
+        controllers_yaml = os.path.join(
+            get_package_share_directory("rox_bringup"),
+            "configs",
+            "ur_config",
+            arm_typ,
+            "ur_controllers.yaml",
+        )
 
     start_robot_state_publisher_cmd = Node(
         package='robot_state_publisher',
@@ -85,7 +97,9 @@ def execution_stage(context: LaunchContext,
             " ", 'use_gz:=',
             "True",
             " ", 'use_ur_dc:=',
-            use_ur_dc
+            use_ur_dc,
+            " ", 'simulation_controllers:=',
+            controllers_yaml,
             ])}],
         arguments=[urdf])
     

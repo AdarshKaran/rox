@@ -27,7 +27,7 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    use_sim_time = LaunchConfiguration('use_sim_time', default='True') 
+    use_sim_time = LaunchConfiguration('use_sim_time', default='False') 
     param_file_name = 'mapping.yaml'
     param_dir = LaunchConfiguration(
         'parameters',
@@ -46,7 +46,7 @@ def generate_launch_description():
 
         DeclareLaunchArgument(
             'use_sim_time',
-            default_value='True',
+            default_value='False',
             description='Use simulation (Gazebo) clock if true'),
 
         Node(

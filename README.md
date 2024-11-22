@@ -41,3 +41,5 @@ Arguments (pass arguments as '<name>:=<value>'):
 To simulate the rox robot with a Universal Robotics (UR) arm, you need to set the `arm_type` parameter. Below is an example of how to launch the simulation with the `ur10` arm type
 
 `ros2 launch rox_bringup bringup_sim_launch.py arm_type:=ur10`
+
+For more information, kindly check our documentation at [Neobotix Docs - Starting with ROS 2 on Modern Gazebo](https://neobotix-docs.de/ros/ros2/simulation_modern.html#rox).
