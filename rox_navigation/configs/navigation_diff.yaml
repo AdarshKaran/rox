@@ -68,6 +68,8 @@ neo_localization2_node:
     particle_cloud: particlecloud
     # amcl_pose topic
     amcl_pose: amcl_pose
+    # set init_pose
+    set_initial_pose: true
 
 amcl:
   ros__parameters:
@@ -84,7 +86,6 @@ amcl:
     do_beamskip: false
     global_frame_id: "map"
     lambda_short: 0.1
-    set_initial_pose: false
     laser_likelihood_max_dist: 2.0
     laser_max_range: -1.0
     laser_min_range: -1.0
@@ -98,7 +99,7 @@ amcl:
     recovery_alpha_fast: 0.0
     recovery_alpha_slow: 0.0
     resample_interval: 2
-    robot_model_type: "differential"
+    robot_model_type: "nav2_amcl::DifferentialMotionModel"
     save_pose_rate: 0.5
     sigma_hit: 0.2
     tf_broadcast: true
@@ -109,6 +110,12 @@ amcl:
     # z_hit: 0.5
     # z_max: 0.05
     # z_rand: 0.5
+    set_initial_pose: true
+    initial_pose:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      yaw: 0.0
 
 bt_navigator:
   ros__parameters:
@@ -261,7 +268,7 @@ global_costmap:
       publish_frequency: 1.0
       global_frame: map
       robot_base_frame: base_link
-      footprint_padding: 0.
+      footprint_padding: 0.0
       footprint:  "[ [0.25,0.5],[-0.75,0.5],[-0.75,-0.5],[0.25,-0.5] ]"
       use_sim_time: False
       # robot_radius: 0.22

@@ -61,12 +61,7 @@ This setting is commented in every UR arm `ur_controllers.yaml` file under `rox_
 
 Start navigation:
 ```sh
-ros2 launch rox_navigation navigation.launch.py use_sim_time:=True
-```
-
-Start RViz for visualization:
-```sh
-ros2 launch neo_nav2_bringup rviz_launch.py
+ros2 launch rox_navigation navigation.launch.py rox_type:=argo use_sim_time:=True use_rviz:=true use_amcl:=False
 ```
 
 ## **MoveIt2 Simulation**
@@ -78,29 +73,14 @@ ros2 launch neo_rox_moveit2 neo_ur_moveit.launch.py arm_type:=ur10 use_sim_time:
 
 ---
 
-## **Changes in This Update**
-
-### **rox_description**
-- Updated `gazebo.xacro` for migration to Modern Gazebo (Ionic).
-- Added modular URDF xacros for `ur_arm` and `elite_arm`.
-- Refactored `rox.urdf.xacro` to be modular.
-
-### **rox_bringup**
-- Added ROS 2 Control and Joint Trajectory Controller configurations for UR and Elite arms.
-- Updated `gz_bridge_config.yaml` to support the Modern Gazebo migration and updated /cmd_vel message type.
-- Modified `bringup_sim_launch.py` to accommodate the new URDF format and include necessary ROS 2 Control nodes for arms.
-- Updated the teleop publish message type for /cmd_vel topic.
-- Added model paths to `GZ_SIM_RESOURCE_PATH` env variable in launch file.
-- Set use ac/dc parameter in simulation launch file and updated arm position(height) on cabinet for ac variant
-- UR arm urdf in `ur_description` package for rolling is different from the iron distro. So this package was  adapted to those changes and appropriate packages were used.
-
-### **General**
-- Updated dependencies.
-- Packages restucturing.
-
----
-
 ## **Changelog**
+
+### **[Date: 2025-02-27]**
+
+#### **rox_navigation**
+
+- Updated the navigation launch by adding an argument to launch rviz with no outputs in the current terminal Issue #51
+- Added initial pose to nav omni and diff params file, updated model type
 
 ### **[Date: 2025-02-26]**
 

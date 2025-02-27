@@ -19,9 +19,16 @@ from launch.launch_context import LaunchContext
 
 def execution_stage(
         context: LaunchContext,
-        rox_type, use_sim_time,
-        autostart, namespace, use_multi_robots,
-        head_robot, use_amcl, map_dir, param_dir):
+        rox_type, 
+        use_sim_time,
+        autostart, 
+        namespace, 
+        use_multi_robots,
+        head_robot, 
+        use_amcl, 
+        map_dir, 
+        param_dir, 
+        use_rviz):
     
     launches = []
 
@@ -97,8 +104,22 @@ def execution_stage(
         ]
     )
 
+    # Start RViz if use_rviz is True
+    start_rviz = IncludeLaunchDescription(
+        condition=IfCondition(use_rviz),
+        launch_description_source=PythonLaunchDescriptionSource(
+            [nav2_launch_file_dir, '/rviz_launch.py']),
+        launch_arguments={
+            'namespace': namespace,
+            'use_namespace': use_multi_robots,
+            'use_sim_time': use_sim_time,
+            'rviz_output': 'log' ,
+        }.items(),
+    )
+
     launches.append(start_navigation)
     launches.append(start_map_server)
+    launches.append(start_rviz)
 
     return launches
     
@@ -113,6 +134,7 @@ def generate_launch_description():
     rox_type = LaunchConfiguration('rox_type')
     map_dir = LaunchConfiguration('map')
     param_dir = LaunchConfiguration('nav2_params_file')
+    use_rviz = LaunchConfiguration('use_rviz')
     
     declare_rox_type_cmd = DeclareLaunchArgument(
             'rox_type', default_value='argo',
@@ -161,8 +183,13 @@ def generate_launch_description():
             'nav2_params_file', default_value=os.path.join(
                 get_package_share_directory('rox_navigation'),
                 'configs',
-                'navigation_short_frame.yaml'),
+                'navigation_omni.yaml'),
             description='Full path to the Nav2 parameters file to load'
+        )
+    
+    declare_use_rviz_cmd = DeclareLaunchArgument(
+            'use_rviz', default_value='True',
+            description='Launch RViz for visualization'
         )
     
     # Adding all the necessary launch description actions
@@ -175,9 +202,10 @@ def generate_launch_description():
     launch_desc.add_action(declare_use_amcl_cmd)
     launch_desc.add_action(declare_map_cmd)
     launch_desc.add_action(declare_nav2_param_file_cmd)
+    launch_desc.add_action(declare_use_rviz_cmd)
 
     context_arguments = [rox_type, use_sim_time, autostart, namespace,
-                         use_multi_robots, head_robot, use_amcl, map_dir, param_dir]
+                         use_multi_robots, head_robot, use_amcl, map_dir, param_dir, use_rviz]
 
     opq_function = OpaqueFunction(function=execution_stage, args=context_arguments)
 

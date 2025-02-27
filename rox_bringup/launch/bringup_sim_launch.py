@@ -10,7 +10,6 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import ThisLaunchFileDir, LaunchConfiguration, Command, PathJoinSubstitution, FindExecutable, PythonExpression
 from launch_ros.actions import Node
 from launch.launch_context import LaunchContext
-from launch.conditions import IfCondition
 from launch_ros.descriptions import ParameterValue
 import os
 from pathlib import Path
@@ -129,7 +128,14 @@ def execution_stage(context: LaunchContext,
     # Set environment variable
     set_env_vars_resources = AppendEnvironmentVariable('GZ_SIM_RESOURCE_PATH', env_var_value)
 
-    launch_actions = [set_env_vars_resources, start_robot_state_publisher_cmd, gz_sim, gz_bridge, teleop, spawn_robot]
+    launch_actions = [
+        set_env_vars_resources, 
+        start_robot_state_publisher_cmd, 
+        gz_sim, 
+        gz_bridge, 
+        teleop, 
+        spawn_robot
+    ]
 
     if arm_typ != '':
         launch_actions.append(joint_state_broadcaster_spawner)
