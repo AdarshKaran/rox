@@ -76,7 +76,9 @@ def execution_stage(
             PythonLaunchDescriptionSource([nav2_launch_file_dir, '/navigation_neo.launch.py']),
             launch_arguments={'namespace': namespace,
                               'use_sim_time': use_sim_time,
-                              'params_file': params}.items()),
+                              'params_file': params,
+                              'use_rviz': use_rviz,
+                              'rviz_output': 'log'}.items()),
     ])
 
     # Start map_server if this robot is assigned as the head robot and if there is no multi-robot,
@@ -104,22 +106,8 @@ def execution_stage(
         ]
     )
 
-    # Start RViz if use_rviz is True
-    start_rviz = IncludeLaunchDescription(
-        condition=IfCondition(use_rviz),
-        launch_description_source=PythonLaunchDescriptionSource(
-            [nav2_launch_file_dir, '/rviz_launch.py']),
-        launch_arguments={
-            'namespace': namespace,
-            'use_namespace': use_multi_robots,
-            'use_sim_time': use_sim_time,
-            'rviz_output': 'log' ,
-        }.items(),
-    )
-
     launches.append(start_navigation)
     launches.append(start_map_server)
-    launches.append(start_rviz)
 
     return launches
     
