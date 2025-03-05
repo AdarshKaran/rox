@@ -17,7 +17,6 @@ import xacro
 
 def execution_stage(context: LaunchContext,
                     robot_namespace,
-                    frame_type,
                     rox_type,
                     arm_type,
                     scanner_type,
@@ -26,7 +25,6 @@ def execution_stage(context: LaunchContext,
     
     rox = get_package_share_directory('rox_bringup')
 
-    frame_typ = str(frame_type.perform(context))
     arm_typ = str(arm_type.perform(context))
     rox_typ = str(rox_type.perform(context))
     scanner_typ = str(scanner_type.perform(context))
@@ -38,10 +36,6 @@ def execution_stage(context: LaunchContext,
     rp_ns = ""
     if (robot_namespace.perform(context) != "/"):
         rp_ns = robot_namespace.perform(context) + "/"
-
-    if (rox_typ == "meca"):
-        frame_typ = "long"
-        print("Meca only supports long frame")   
     
     urdf = os.path.join(get_package_share_directory('rox_description'), 'urdf', 'rox.urdf.xacro')
 
@@ -52,8 +46,7 @@ def execution_stage(context: LaunchContext,
         output='screen',
         parameters=[{
             'robot_description': Command([
-            "xacro", " ", urdf, " ", 'frame_type:=',
-            frame_typ,
+            "xacro", " ", urdf,
             " ", 'arm_type:=',
             arm_typ,
             " ", 'rox_type:=',
@@ -246,14 +239,13 @@ def generate_launch_description():
     
     # Launch configuration
     robot_namespace = LaunchConfiguration('robot_namespace')
-    frame_type = LaunchConfiguration('frame_type')
     rox_type = LaunchConfiguration('rox_type')
     arm_type = LaunchConfiguration('arm_type')
     scanner_type = LaunchConfiguration('scanner_type')
     imu_enable = LaunchConfiguration('imu_enable')
     ur_dc = LaunchConfiguration('use_ur_dc')
 
-    context_arguments = [robot_namespace, frame_type, rox_type, arm_type, scanner_type, imu_enable, ur_dc]
+    context_arguments = [robot_namespace, rox_type, arm_type, scanner_type, imu_enable, ur_dc]
 
     opq_function = OpaqueFunction(function=execution_stage, args=context_arguments)
     
@@ -261,14 +253,9 @@ def generate_launch_description():
             'robot_namespace', default_value='', description='Top-level namespace'
         )
     
-    declare_frame_type_cmd = DeclareLaunchArgument(
-            'frame_type', default_value='short',
-            description='Frame type - Options: short/long'
-        )
-    
     declare_rox_type_cmd = DeclareLaunchArgument(
             'rox_type', default_value='argo',
-            description='Robot type - Options: argo/diff/trike/meca'
+            description='Robot type - Options: argo/diff/trike'
         )
 
     declare_imu_cmd = DeclareLaunchArgument(
@@ -296,7 +283,6 @@ def generate_launch_description():
     ld.add_action(declare_rox_type_cmd)
     ld.add_action(declare_imu_cmd)
     ld.add_action(declare_arm_cmd)
-    ld.add_action(declare_frame_type_cmd)
     ld.add_action(declare_scanner_cmd)
     ld.add_action(declare_ur_pwr_variant_cmd)
     ld.add_action(opq_function)

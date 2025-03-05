@@ -32,12 +32,8 @@ ros2 launch rox_bringup bringup_sim_launch.py --show-args
         Universal Robotics (UR): ur5, ur10, ur5e, ur10e
     (default: '')
 
-'frame_type':
-    Frame type - Options: short/long
-    (default: 'short')
-
 'rox_type':
-    Robot type - Options: argo/diff/trike/meca
+    Robot type - Options: argo/diff/trike
     (default: 'argo')
 
 'use_ur_dc':

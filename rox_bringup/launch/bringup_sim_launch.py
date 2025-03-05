@@ -16,7 +16,6 @@ from pathlib import Path
 import xacro
 
 def execution_stage(context: LaunchContext, 
-                    frame_type, 
                     rox_type, 
                     arm_type, 
                     d435_enable, 
@@ -26,7 +25,6 @@ def execution_stage(context: LaunchContext,
     
     default_world_path = os.path.join(get_package_share_directory('neo_gz_worlds'), 'worlds', 'neo_workshop.sdf')
     bridge_config_file = os.path.join(get_package_share_directory('rox_bringup'), 'configs/gz_bridge', 'gz_bridge_config.yaml')
-    frame_typ = str(frame_type.perform(context))
     arm_typ = str(arm_type.perform(context))
     rox_typ = str(rox_type.perform(context))
     d435 = str(d435_enable.perform(context))
@@ -34,10 +32,6 @@ def execution_stage(context: LaunchContext,
     use_ur_dc = str(ur_dc.perform(context))
     initial_joint_controller_name = str(initial_joint_controller.perform(context))
     joint_type = "fixed"
-
-    if (rox_typ == "meca"):
-        frame_typ = "long"
-        print("Meca only supports long frame")
 
     if (rox_typ == "diff" or rox_typ == "trike"):
         joint_type = "revolute"
@@ -68,8 +62,7 @@ def execution_stage(context: LaunchContext,
         parameters=[{
             'use_sim_time': True,  # Pass use_sim_time as True for simulation
             'robot_description': ParameterValue(Command([
-            "xacro", " ", urdf, " ", 'frame_type:=',
-            frame_typ,
+            "xacro", " ", urdf,
             " ", 'arm_type:=',
             arm_typ,
             " ", 'rox_type:=',
@@ -144,11 +137,7 @@ def execution_stage(context: LaunchContext,
     return launch_actions
 
 def generate_launch_description():
-    declare_frame_type_cmd = DeclareLaunchArgument(
-            'frame_type', default_value='short',
-            description='Frame type - Options: short/long'
-        )
-    
+   
     declare_rox_type_cmd = DeclareLaunchArgument(
             'rox_type', default_value='argo',
             description='Robot type - Options: argo/diff/trike'
@@ -185,8 +174,7 @@ def generate_launch_description():
         )
 
     opq_function = OpaqueFunction(function=execution_stage,
-                                  args=[LaunchConfiguration('frame_type'),
-                                        LaunchConfiguration('rox_type'),
+                                  args=[LaunchConfiguration('rox_type'),
                                         LaunchConfiguration('arm_type'),
                                         LaunchConfiguration('d435_enable'),
                                         LaunchConfiguration('imu_enable'),
@@ -198,7 +186,6 @@ def generate_launch_description():
         declare_imu_cmd,
         declare_realsense_cmd,
         declare_arm_cmd,
-        declare_frame_type_cmd,
         declare_rox_type_cmd,
         declare_ur_pwr_variant_cmd,
         declare_initial_joint_controller_cmd,
