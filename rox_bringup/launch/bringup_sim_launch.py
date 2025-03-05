@@ -22,7 +22,8 @@ def execution_stage(context: LaunchContext,
                     d435_enable, 
                     imu_enable, 
                     ur_dc,
-                    initial_joint_controller):
+                    initial_joint_controller,
+                    headless_sim):
     
     default_world_path = os.path.join(get_package_share_directory('neo_gz_worlds'), 'worlds', 'neo_workshop.sdf')
     bridge_config_file = os.path.join(get_package_share_directory('rox_bringup'), 'configs/gz_bridge', 'gz_bridge_config.yaml')
@@ -33,6 +34,7 @@ def execution_stage(context: LaunchContext,
     imu = str(imu_enable.perform(context))
     use_ur_dc = str(ur_dc.perform(context))
     initial_joint_controller_name = str(initial_joint_controller.perform(context))
+    headless_sim = str(headless_sim.perform(context))
     joint_type = "fixed"
 
     if (rox_typ == "meca"):
@@ -53,12 +55,18 @@ def execution_stage(context: LaunchContext,
             '-topic', "robot_description",
             '-name', "rox"])
     
+    # Define gz_args based on headless_simulation argument
+    gz_args = f"-r {default_world_path}"
+
+    if headless_sim.lower() == 'true':
+        gz_args = f"-r -s {default_world_path}"
+
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(get_package_share_directory('ros_gz_sim'), 'launch', 'gz_sim.launch.py')
-        )
-        , launch_arguments={'gz_args': ['-r ', default_world_path]}.items()
-      )
+        ),
+        launch_arguments={'gz_args': gz_args}.items()
+    )
 
     start_robot_state_publisher_cmd = Node(
         package='robot_state_publisher',
@@ -183,6 +191,11 @@ def generate_launch_description():
                         '\t Elite Arms: arm_controller\n'
                         '\t Universal Robotics (UR): joint_trajectory_controller,scaled_joint_trajectory_controller'
         )
+    
+    declare_headless_sim_cmd = DeclareLaunchArgument(
+            'headless_simulation', default_value='False',
+            description='Run Gazebo in headless mode (no GUI) - Options: True/False'
+        )
 
     opq_function = OpaqueFunction(function=execution_stage,
                                   args=[LaunchConfiguration('frame_type'),
@@ -191,7 +204,8 @@ def generate_launch_description():
                                         LaunchConfiguration('d435_enable'),
                                         LaunchConfiguration('imu_enable'),
                                         LaunchConfiguration('use_ur_dc'),
-                                        LaunchConfiguration('initial_joint_controller')
+                                        LaunchConfiguration('initial_joint_controller'),
+                                        LaunchConfiguration('headless_simulation')
                                         ])
     
     ld = LaunchDescription([
@@ -202,6 +216,7 @@ def generate_launch_description():
         declare_rox_type_cmd,
         declare_ur_pwr_variant_cmd,
         declare_initial_joint_controller_cmd,
+        declare_headless_sim_cmd,
         opq_function
     ])
     return ld
