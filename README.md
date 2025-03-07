@@ -6,7 +6,7 @@ For running ROX on a real robot, follow the setup guide here:
 
 For detailed instructions on simulating the ROX platform in modern Gazebo, refer to the official documentation:
 [Simulation in Modern Gazebo](https://neobotix-docs.de/ros/ros2/simulation_modern.html#rox)
-<div style="display: flex; justify-content: space-between;">
-    <img src="https://github.com/user-attachments/assets/bf82ae8e-1110-402b-94e7-8f044994d47d" alt="ROX GIF" style="width: 48%;">
-    <img src="https://github.com/user-attachments/assets/25745945-d705-4afa-8b5d-e8ab2f7196a4" alt="EMROX GIF" style="width: 48%;">
-</div>
+| ![ROX GIF](https://github.com/user-attachments/assets/bf82ae8e-1110-402b-94e7-8f044994d47d) | ![EMROX GIF](https://github.com/user-attachments/assets/25745945-d705-4afa-8b5d-e8ab2f7196a4) |
+|:--:|:--:|
+| **ROX – Omnidirectional Platform** | **EMROX – Mountable Arms** |
+
