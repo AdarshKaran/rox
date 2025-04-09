@@ -19,10 +19,6 @@ def execution_stage(context: LaunchContext, frame_type, rox_type, arm_type, ur_d
     arm_typ = arm_type.perform(context)
     rox_typ = rox_type.perform(context)
     use_ur_dc = ur_dc.perform(context)
-
-    if (rox_typ == "meca"):
-        frame_typ = "long"
-        print("Meca only supports long frame")   
     
     urdf = os.path.join(get_package_share_directory('rox_description'), 'urdf', 'rox.urdf.xacro')
 
@@ -59,7 +55,7 @@ def generate_launch_description():
     
     declare_rox_type_cmd = DeclareLaunchArgument(
             'rox_type', default_value='argo',
-            description='Robot type - Options: argo/diff/trike/meca'
+            description='Robot type - Options: argo/diff/trike'
         )
    
     declare_arm_cmd = DeclareLaunchArgument(

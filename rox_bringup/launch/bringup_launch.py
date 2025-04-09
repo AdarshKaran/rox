@@ -400,7 +400,7 @@ def generate_launch_description():
 
     declare_rox_type_cmd = DeclareLaunchArgument(
             'rox_type', default_value='argo',
-            choices = ['', 'argo', 'diff', 'trike', 'meca'],
+            choices = ['', 'argo', 'diff', 'trike'],
             description='Robot type\n\t'
         )
 
