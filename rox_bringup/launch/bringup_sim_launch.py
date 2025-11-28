@@ -15,6 +15,7 @@ from param_file_utils import generate_final_yaml
 import os
 from pathlib import Path
 import xacro
+from launch_xml.launch_description_sources import XMLLaunchDescriptionSource
 
 def execution_stage(context: LaunchContext, 
                     rox_type,
@@ -201,7 +202,13 @@ def execution_stage(context: LaunchContext,
             'output_topic': '/scan'
         }],
     )
-
+    if (headless_sim):
+        starting_webserver =  IncludeLaunchDescription(
+        XMLLaunchDescriptionSource(
+            os.path.join(get_package_share_directory('rox_bringup'), 'launch', 'rosbridge_websocket_launch.xml')
+            )
+        )
+        launch_actions.append(starting_webserver)
     env_var_value = (
         os.path.join(get_package_share_directory('neo_gz_worlds'), 'models') +
         ':' +
